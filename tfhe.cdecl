@@ -1,0 +1,330 @@
+;;;; TFHE bindings for MIT Scheme
+
+(typedef int32_t int)
+(typedef uint32_t uint)
+
+;;; Parameters
+
+(typedef TFheGateBootstrappingParameterSet
+	 (struct TFheGateBootstrappingParameterSet
+	 	 (ks_t (const int))
+		 (ks_basebit (const int))
+		 (in_out_params (const (* (const LweParams))))
+		 (tgsw_params (const (* (const TGswParams))))))
+
+(extern (* TFheGateBootstrappingParameterSet)
+	new_default_gate_bootstrapping_parameters
+	(minimum_lambda int))
+
+(extern void
+	delete_gate_bootstrapping_parameters
+	(keyset (* TFheGateBootstrappingParameterSet)))
+
+
+;;; Secret keyset
+
+(typedef TFheGateBootstrappingSecretKeySet
+	 (struct TFheGateBootstrappingSecretKeySet
+		(params (* (const TFheGateBootstrappingParameterSet)))
+		(lwe_key (* (const LweKey)))
+		(tgsw_key (* (const TGswKey)))
+		(cloud (const TFheGateBootstrappingCloudKeySet))))
+
+(extern void
+	tfhe_random_generator_setSeed
+	(values (* uint32_t))
+	(size int))
+
+(extern (* TFheGateBootstrappingSecretKeySet)
+	new_random_gate_bootstrapping_secret_keyset
+	(params (* (const TFheGateBootstrappingParameterSet))))
+
+(extern void
+	delete_gate_bootstrapping_secret_keyset
+	(keyset (* TFheGateBootstrappingSecretKeySet)))
+
+
+
+;;; Cloud keyset
+
+(typedef LweBootstrappingKey
+	 (struct LweBootstrappingKey
+	 	 (in_out_params (* (const LweParams)))
+		 (bk_params (* (const TGswParams)))
+		 (accum_params (* (const TLweParams)))
+		 (extract_params (* (const LweParams)))
+		 (bk (* TGswSample))
+		 (ks (* LweKeySwitchKey))))
+
+(typedef LweParams
+	(struct LweParams
+		(n (const int))
+		(alpha_min (const double))
+		(alpha_max (const double))))
+
+(typedef TLweParams
+	(struct TLweParams
+		(N (const int))
+		(k (const int))
+		(alpha_min (const double))
+		(alpha_max (const double))
+		(extracted_lweparams (const LweParams))))
+
+(typedef TorusPolynomial
+	(struct TorusPolynomial
+		(N (const int))
+		(coefsT (* Torus32))))
+
+(typedef TLweSample
+	(struct TLweSample
+		(a (* TorusPolynomial))
+		(b (* TorusPolynomial))
+		(current_variance double)
+		(k (const int))))
+
+(typedef LagrangeHalfCPolynomial
+	(struct LagrangeHalfCPolynomial
+		(data (* void))
+		(precomp (* void))))
+
+(typedef TLweSampleFFT
+	(struct TLweSampleFFT
+		(a (* LagrangeHalfCPolynomial))
+		(b (* LagrangeHalfCPolynomial))
+		(current_variance double)
+		(k (const int))))
+
+(typedef TGswParams
+	 (struct TGswParams
+	 	 (l (const int))
+		 (Bgbit (const int))
+		 (Bg (const int))
+		 (halfBg (const int32_t))
+		 (maskMod (const uint32_t))
+		 (tlwe_params (* (const TLweParams)))
+		 (kpl (const int))
+		 (h (* Torus32))
+		 (offset uint32_t)))
+
+(typedef TGswSample
+	 (struct TGswSample
+	 	 (all_sample (* TLweSample))
+		 (bloc_sample (* (* TLweSample)))
+		 (k (const int))
+		 (l (const int))))
+
+(typedef TGswSampleFFT
+	(struct TGswSampleFFT
+		(all_samples (* TLweSampleFFT))
+		(sample (* (* TLweSampleFFT)))
+		(k (const int))
+		(l (const int))))
+
+(typedef IntPolynomial
+	(struct IntPolynomial
+		(N (const int))
+		(coefs (* int))))
+
+(typedef TLweKey
+	(struct TLweKey
+		(params (* (const TLweParams)))
+		(key (* IntPolynomial))))
+
+(typedef TGswKey
+	 (struct TGswKey
+	 	 (params (* (const TGswParams)))
+		 (tlwe_params (* (const TLweParams)))
+		 (key (* IntPolynomial))
+		 (tlwe_key TLweKey)))
+
+
+(typedef LweKeySwitchKey
+	 (struct LweKeySwitchKey
+	 	 (n int)
+		 (t int)
+		 (basebit int)
+		 (base int)
+		 (out_params (* (const LweParams)))
+		 (ks0_raw (* LweSample))
+		 (ks1_raw (* (* LweSample)))
+		 (ks (* (* (* LweSample))))))
+
+(typedef LweBootstrappingKeyFFT
+	 (struct LweBootstrappingKeyFFT
+	 	 (in_out_params (* (const LweParams)))
+		 (bk_params (* (const TGswParams)))
+		 (accum_params (* (const TLweParams)))
+		 (extract_params (* (const LweParams)))
+		 (bkFFT (* (const TGswSampleFFT)))
+		 (ks (* (const LweKeySwitchKey)))))
+
+(typedef TFheGateBootstrappingCloudKeySet
+	 (struct TFheGateBootstrappingCloudKeySet
+	 	 (params (const (* (const TFheGateBootstrappingParameterSet))))
+		 (bk (const (* (const LweBootstrappingKey))))
+		 (bkFFT (const (* (const LweBootstrappingKeyFFT))))))
+
+(extern void
+	delete_gate_bootstrapping_cloud_keyset
+	(keyset (* TFheGateBootstrappingCloudKeySet)))
+
+
+;;; Ciphertexts
+
+(typedef Torus32 int32_t)
+(typedef LweSample
+	 (struct LweSample
+	 	 (a (* Torus32))
+		 (b Torus32)
+		 (current_variance double)))
+
+;; generate a new unititialized ciphertext (or an array of ciphertexts)
+(extern (* LweSample)
+	new_gate_bootstrapping_ciphertext
+	(params (* (const TFheGateBootstrappingParameterSet))))
+
+(extern (* LweSample)
+	new_gate_bootstrapping_ciphertext_array
+	(nbelems int)
+	(params (* (const TFheGateBootstrappingParameterSet))))
+
+
+;; deletes a ciphertext (or an array of ciphertexts)
+(extern void
+	delete_gate_bootstrapping_ciphertext
+	(sample (* LweSample)))
+
+(extern void
+	delete_gate_bootstrapping_ciphertext_array
+	(nbelems int)
+	(samples (* LweSample)))
+
+
+;;; Encrypt decrypt
+
+;; encrypts a boolean
+(extern void
+	bootsSymEncrypt
+	(result (* LweSample))
+	(message int)
+	(params (* (const TFheGateBootstrappingSecretKeySet))))
+
+;; decrypts a boolean
+(extern int
+	bootsSymDecrypt
+	(sample (* (const LweSample)))
+	(params (* (const TFheGateBootstrappingSecretKeySet))))
+
+;;; Homomorphic operations
+
+;; bootstrapped Constant (true or false) trivial Gate
+(extern void
+	bootsCONSTANT
+	(result (* LweSample))
+	(value int)
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Not Gate: result = not(a)
+(extern void
+	bootsNOT
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Copy Gate: result = a
+(extern void
+	bootsCOPY
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+
+;; bootstrapped Nand Gate
+(extern void
+	bootsNAND
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Or Gate
+(extern void
+	bootsOR
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped And Gate: result = a and b
+(extern void
+	bootsAND
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Xor Gate: result = a xor b
+(extern void
+	bootsXOR
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Xnor Gate: result = (a==b)
+(extern void
+	bootsXNOR
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped Nor Gate: result = not(a or b)
+(extern void
+	bootsNOR
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped AndNY Gate: not(a) and b
+(extern void
+	bootsANDNY
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped AndYN Gate: a and not(b)
+(extern void
+	bootsANDYN
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped OrNY Gate: not(a) or b
+(extern void
+	bootsORNY
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+;; bootstrapped OrYN Gate: a or not(b)
+(extern void
+	bootsORYN
+	(result (* LweSample))
+	(ca (* (const LweSample)))
+	(cb (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
+
+
+;; bootstrapped Mux(a,b,c) = a?b:c
+(extern void
+	bootsMUX
+	(result (* LweSample))
+	(a (* (const LweSample)))
+	(b (* (const LweSample)))
+	(c (* (const LweSample)))
+	(bk (* (const TFheGateBootstrappingCloudKeySet))))
