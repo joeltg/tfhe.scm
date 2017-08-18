@@ -2,8 +2,6 @@
 (c-include "tfhe")
 
 
-(define minimum-lambda 100)
-
 ;;; Parameters
 ;; Returns a keyset
 (define (new-default-gate-bootstrapping-parameters minimum-lambda)

@@ -30,11 +30,6 @@
 		(tgsw_key (* (const TGswKey)))
 		(cloud (const TFheGateBootstrappingCloudKeySet))))
 
-(extern void
-	tfhe_random_generator_setSeed
-	(values (* uint32_t))
-	(size int))
-
 (extern (* TFheGateBootstrappingSecretKeySet)
 	new_random_gate_bootstrapping_secret_keyset
 	(params (* (const TFheGateBootstrappingParameterSet))))
@@ -42,8 +37,6 @@
 (extern void
 	delete_gate_bootstrapping_secret_keyset
 	(keyset (* TFheGateBootstrappingSecretKeySet)))
-
-
 
 ;;; Cloud keyset
 
