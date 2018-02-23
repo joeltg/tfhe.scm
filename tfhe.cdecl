@@ -192,6 +192,47 @@
 	(nbelems int)
 	(samples (* LweSample)))
 
+(extern (* LweSample) alloc_LweSample)
+
+(extern (* LweSample) alloc_LweSample_array
+	(nbelts int))
+
+(extern void free_LweSample
+	(ptr (* LweSample)))
+
+(extern void free_LweSample_array
+	(nbelts int)
+	(ptr (* LweSample)))
+
+(extern void init_LweSample
+	(ptr (* LweSample))
+	(params (* (const LweParams))))
+
+(extern void init_LweSample_array
+	(nbelts int)
+	(ptr (* LweSample))
+	(params (* (const LweParams))))
+
+(extern void destroy_LweSample
+	(ptr (* LweSample)))
+
+(extern void destroy_LweSample_array
+	(nbelts int)
+	(ptr (* LweSample)))
+
+(extern (* LweSample) new_LweSample
+	(params (* (const LweParams))))
+
+(extern (* LweSample) new_LweSample_array
+	(nbelts int)
+	(params (* (const LweParams))))
+
+(extern void delete_LweSample
+	(obj (* LweSample)))
+
+(extern void delete_LweSample_array
+	(nbelts int)
+	(obj (* LweSample)))
 
 ;;; Encrypt decrypt
 

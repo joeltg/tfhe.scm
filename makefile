@@ -9,13 +9,13 @@ clean:
 build: tfhe-shim.so tfhe-types.bin tfhe-const.bin
 
 tfhe-shim.so: tfhe-shim.o
-	echo "(link-shim)" | mit-scheme --batch-mode -- -o $@ $^ -L/usr/local/lib -ltfhe-spqlios-fma
+	echo "(link-shim)" | mit-scheme --batch-mode -- -o $@ $^ -L/usr/local/lib -ltfhe-spqlios-fma -fPIC
 
 tfhe-shim.o: tfhe-shim.c
 	echo '(compile-shim)' | mit-scheme --batch-mode -- -I/usr/local/include -c $<
 
 tfhe-shim.c tfhe-const.c tfhe-types.bin: tfhe.cdecl
-	echo '(generate-shim "tfhe" "#include <tfhe/tfhe.h>")' | mit-scheme --batch-mode
+	echo '(generate-shim "tfhe" "#include <tfhe/tfhe.h>\n#include <tfhe/tfhe_io.h>")' | mit-scheme --batch-mode
 
 tfhe-const.bin: tfhe-const.scm
 	echo '(sf "tfhe-const")' | mit-scheme --batch-mode
